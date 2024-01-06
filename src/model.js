@@ -3,37 +3,43 @@
 // of visualization which are done in viz.js
 
 import param from "./parameters.js"
-import {each,range,map,mean} from "lodash-es"
-import {rad2deg,deg2rad} from "./utils"
-
-const L = param.L;
-const dt = param.dt;
-
-// typically objects needed for the explorable
-// are defined here
+import {find,filter,each,range,map,mean,shuffle,sample,meanBy,sumBy} from "lodash-es"
+//import {rad2deg,deg2rad} from "./utils"
+import {hex} from "lattices"
+import random from 'random'
 
 var agents = [];
-
-// the initialization function, this is bundled in simulation.js with the initialization of
-// the visualization and effectively executed in index.js when the whole explorable is loaded
+var newontheblock = [];
+var N_species;
+var fitness = [];
+var series = {};
+const sigma = param.delta_fitness;
+const rd = random.normal(0,sigma);
 
 const initialize = () => {
+	
+	newontheblock = [];
+	fitness = [];
+	series = {};
 
-	// set/reset timer
 	param.timer={}; param.tick=0;
-
-	// make agents
-
-	const N = param.number_of_particles.choices[param.number_of_particles.widget.value()];
 	
-	agents = map(range(N), i => { return {
-				index:i, 
-				x:L*Math.random(), 
-				y:L*Math.random(),
-				theta: 2*Math.PI*Math.random(),
-			} 
-	});
+	const s = hex(param.N).boundary(param.boundary)
+	agents = s.nodes;
+	N_species = 1;
 	
+	each(agents,a=>{
+		a.fitness=param.initial_fitness;
+		a.index=0;
+	})
+	
+	fitness.push({index:N_species-1,f:0,n:agents.length})
+	
+	series[N_species-1]=[{t:param.tick,n0:0,n1:agents.length}];
+	
+	//console.log(series)
+	//console.log(fitness)
+	//console.log(fitness)
 };
 
 // the go function, this is bundled in simulation.js with the go function of
@@ -43,34 +49,75 @@ const initialize = () => {
 const go  = () => {
 	
 	param.tick++;
+	newontheblock = []
+	
+	const mu = param.mutation_rate.widget.value();
+
+	agents=shuffle(agents);
+	
+	each(agents,a=>{
+		if(Math.random() < mu){
+			let ff = find(fitness,f=>f.index==a.index);
+			ff.n--;
+			
+			// fitness[a.index].n = fitness[a.index].n - 1;
+ 			N_species++;
+	  		a.index=N_species-1;
+			a.fitness+=rd();
+	 		fitness.push({index:a.index,f:a.fitness,n:1})
+// 			fitness[a.index]={f:a.fitness,n:1};
+ 			newontheblock.push({index:a.index,f:a.fitness});
+		}
+	})
 	
 	each(agents,a=>{
 		
-		var dx = dt*param.speed.widget.value()*Math.cos(a.theta);
-		var dy = dt*param.speed.widget.value()*Math.sin(a.theta);
-		
-		const x_new = a.x + dx;
-		const y_new = a.y + dy;
-		
-		if (x_new < 0) {dx+=L};
-		if (y_new < 0) {dy+=L};
-		if (x_new > L) {dx-=L};
-		if (y_new > L) {dy-=L};  
-		
-		a.x += dx;
-		a.y += dy;
-		
-		var neighbors = agents.filter(d =>  (d.x-a.x)**2 + (d.y-a.y)**2 <= param.interaction_radius.widget.value()**2 )
-		
-		var mx = mean(map(neighbors,x=> Math.cos(deg2rad(x.theta))));
-		var my = mean(map(neighbors,x=> Math.sin(deg2rad(x.theta))));	
-		
-		a.theta = rad2deg(Math.atan2(my,mx))
-		
-		a.theta += deg2rad(param.wiggle.widget.value())*(Math.random()-0.5)
+		let target =sample(a.neighbors);
+
+		if(Math.random()<param.long_range_dispersal.widget.value()){
+			target = sample(agents);
+		}
+
+		const f1 = a.fitness;
+		const f2 = target.fitness;
+		const z = 1.0 / (1.0 + Math.exp ( - param.selectivity.widget.value() * (f1 - f2) ))
+
+		const ff = find(fitness,f=>f.index==a.index);
+		const ft = find(fitness,f=>f.index==target.index);
+
+		if (Math.random()<z){
+			ff.n++;
+			ft.n--;
+			target.index = a.index;
+			target.fitness = a.fitness;
+		} else {
+			ff.n--;
+			ft.n++;
+			a.index = target.index;
+			a.fitness = target.fitness;
+		}
+
 		
 	})
 	
+	fitness=filter(fitness,f=>f.n>0);
+	
+	each(fitness,f=>{
+		const below = filter(fitness,q=>q.index<f.index);
+		let mork=0;
+		if (below.length>0){
+
+			mork = sumBy(below,x=>x.n);
+
+		}
+		
+		if (typeof series[f.index] == "undefined") {
+			series[f.index]=[{t:param.tick,n0:mork,n1:mork+f.n}];
+		} else {
+			series[f.index].push({t:param.tick,n0:mork,n1:mork+f.n})			
+		}
+	})
+
 }
 
 // the update function is usually not required for running the explorable. Sometimes
@@ -79,10 +126,8 @@ const go  = () => {
 
 const update = () => {
 	
-	each(agents,x => {x.active = x.index < param.number_of_particles.widget.value() ? true : false})
-
 }
 
 // the three functions initialize, go and update are exported, also all variables
 // that are required for the visualization
-export {agents,initialize,go,update}
+export {newontheblock,fitness,agents,initialize,go,update,series}

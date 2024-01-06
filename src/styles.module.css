@@ -1,3 +1,14 @@
 .node {
 	
 }
+
+.plot > .xaxis, .plot > .yaxis{
+	font-size:12px;
+}
+
+.spike {
+	stroke-width:3px;
+}
+.plot > .xlabel{
+	text-anchor:middle;
+}

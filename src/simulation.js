@@ -4,20 +4,28 @@
 
 import {initialize as model_init, update as model_update, go as model_go} from "./model.js"
 import {initialize as visual_init, update as visual_update, go as visual_go} from "./viz.js"
+import {initialize as spikechart_init, update as spikechart_update} from "./spikechart.js"
+import {initialize as stackchart_init, update as stackchart_update} from "./stackchart.js"
 
-function iterate (display,config) {
+function iterate (display,controls,config) {
 	model_go();
-	visual_go(display,config);
+	visual_go(display,controls,config);
+	spikechart_update(controls);
+	stackchart_update(controls);
 };
 
-function initialize (display,config) {
+function initialize (display,controls,grid,config) {	
 	model_init();
-	visual_init(display,config); 
+	visual_init(display,config);
+	spikechart_init(controls,grid);
+	stackchart_init(controls,grid);
 };
 
-function update (display,config) {
+function update (display,controls,config) {
 	model_update();
-	visual_update(display,config);
+	visual_update(display,controls,config);
+	
 }
-
+	
+	
 export {iterate,initialize,update}

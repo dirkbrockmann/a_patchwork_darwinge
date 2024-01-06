@@ -1,5 +1,5 @@
 export default {
-  "title": "Explorable Title",
-  "subtitle":"Explorable Subtitle",
-  "description": "This is a template for making a complexity explorable. The template can be used to create a new complexity explorable. This template implements the Vicsek Model."
+  "title": "A Patchwork Darwinge",
+  "subtitle":"Evolution: Selection and Variation",
+  "description": "This explorable illustrates the basic mechanism in evolutionary processes and how a population's fitness increases by random mutation and selection of most fit variants.",
 }

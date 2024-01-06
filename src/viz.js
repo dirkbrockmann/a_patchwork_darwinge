@@ -1,68 +1,58 @@
-// This is the core module for the implementation of the visualization
-// It's analogous to model.js in terms of its relation to other modules,
-// e.g. it reads the parameters and provides initialize, go and update functions
-// to simulation.js where they get bundled with the analogous functions in model.js
-// the observables and variables exported in model.js, e.g. the quantities
-// used for the actual visualizations are also imported to viz.js
-
 import * as d3 from "d3"
 import param from "./parameters.js"
 import {agents} from "./model.js"
-import styles from "./styles.module.css"
+import cmap from "./colormaps.js"
+import {each} from "lodash-es"
 
-const L = param.L;
-const X = d3.scaleLinear().domain([0,L]);
-const Y = d3.scaleLinear().domain([0,L]);
+var ctx,dL,W,H;
 
-// the initialization function, this is bundled in simulation.js with the initialization of
-// the model and effectively executed in index.js when the whole explorable is loaded
-// typically here all the elements in the SVG or CANVAS element are set.
+const X = d3.scaleLinear().domain([-0.5,0.5]);
+const Y = d3.scaleLinear().domain([-0.5,0.5]);
+
+const C = d3.scaleOrdinal([0,cmap.batlowS.length-1]).range(cmap.batlowS)
+
+const draw_path = (agents) => {
+	
+	agents.forEach(d=>{
+		const c = d.cell();
+		const l = c.length;
+
+		const color = C(d.index);
+
+		ctx.fillStyle=color;
+		ctx.beginPath();
+		ctx.moveTo(X(c[0].x),Y(c[0].y))
+		each(c,(p,i)=>ctx.lineTo(X(c[(i+1)%l].x),Y(c[(i+1)%l].y)))
+		ctx.fill();
+
+		ctx.closePath();
+	})
+}
 
 const initialize = (display,config) => {
+	
+	W = config.display_size.width;
+ 	H = config.display_size.height;
 
-	const W = config.display_size.width;
-	const H = config.display_size.height;
+ 	X.range([0,W]);
+ 	Y.range([0,H]);
 	
-	X.range([0,W]);
-	Y.range([0,H]);
-		
-	display.selectAll("#origin").remove();
+ 	ctx = display.node().getContext('2d');
+ 	ctx.translate(0.5, 0.5);
+ 	ctx.clearRect(0, 0, W, H);
 	
-	const origin = display.append("g").attr("id","origin")
-	
-	origin.selectAll(null).data(agents).enter().append("circle")
-		.attr("class",styles.node)
-		.attr("cx",d=>X(d.x))
-		.attr("cy",d=>Y(d.y))
-		.attr("r",X(param.agentsize/2))
-		.style("fill", d => param.color_by_heading.widget.value() ? d3.interpolateSinebow(d.theta/2/Math.PI)  : "black")
-	
+	draw_path(agents)
+	draw_path(agents)
+
 };
 
-// the go function, this is bundled in simulation.js with the go function of
-// the model, typically this is the iteration function of the model that
-// is run in the explorable. It contains the code that updates the parts of the display
-// panel as a function of the model quantities.
 
 const go = (display,config) => {
 	
-	display.selectAll("."+styles.node)
-		.attr("cx",d=>X(d.x))
-		.attr("cy",d=>Y(d.y))
-		.style("fill", d => param.color_by_heading.widget.value() ? d3.interpolateSinebow(d.theta/2/Math.PI)  : "black")
-	
+	draw_path(agents)
 }
 
-// the update function is usually not required for running the explorable. Sometimes
-// it makes sense to have it, e.g. to update the visualization, if a parameter is changed,
-// e.g. a radio button is pressed, when the system is not running, e.g. when it is paused.
-
-const update = (display,config) => {
-	
-	display.selectAll("."+styles.node)
-		.style("fill", d => param.color_by_heading.widget.value() ? d3.interpolateSinebow(d.theta/2/Math.PI)  : "black")
-	
-}
+const update = (display,config) => {}
 
 
 export {initialize,go,update}

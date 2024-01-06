@@ -1,10 +1,10 @@
 {
-  "name": "@explorables/explorable_template",
-  "title": "Explorable Title",
-  "subtitle":"Explorable Subtitle",
+  "name": "@explorables/a_patchwork_darwinge",
+  "title": "A Patchwork Darwinge",
+  "subtitle": "Evolution: Selection and Variation",
   "version": "1.1.0",
   "license": "CC-BY-4.0",
-  "description": "This is a template for making a complexity explorable. The template can be used to create a new complexity explorable. This template implements the Vicsek Model.",
+  "description": "This explorable illustrates the basic mechanism in evolutionary processes and how a population's fitness increases by random mutation and selection of most fit variants.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dirkbrockmann/explorable_template.git"
@@ -16,7 +16,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --mode production ",
     "dev": "webpack serve --static dist/ --mode development",
-    "show": "http-server dist -o"
+    "show": "http-server dist -o",
+    "pap": "git add . ; git commit -m \"$npm_package_version\"; git push; npm version patch; npm publish  "
   },
   "keywords": [
     "complexity",
@@ -26,8 +27,11 @@
   "dependencies": {
     "d3": "^7.8.5",
     "d3-widgets": "^1.2.4",
+    "lattices": "^1.0.16",
     "lodash-es": "^4.17.21",
-    "tachyons": "^4.12.0"
+    "random": "^4.1.0",
+    "tachyons": "^4.12.0",
+    "unirand": "^2.12.2"
   },
   "devDependencies": {
     "css-loader": "^6.8.1",
