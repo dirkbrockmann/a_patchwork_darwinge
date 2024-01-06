@@ -1,12 +1,7 @@
-// this is a module that contains most of the explorable specific code
-// the "math" of the explorable, the model itself, without the elements
-// of visualization which are done in viz.js
-
 import param from "./parameters.js"
 import {find,filter,each,range,map,mean,shuffle,sample,meanBy,sumBy} from "lodash-es"
-//import {rad2deg,deg2rad} from "./utils"
 import {hex} from "lattices"
-import random from 'random'
+import {randomNormal} from "d3"
 
 var agents = [];
 var newontheblock = [];
@@ -14,7 +9,7 @@ var N_species;
 var fitness = [];
 var series = {};
 const sigma = param.delta_fitness;
-const rd = random.normal(0,sigma);
+const rd = randomNormal(0, sigma);
 
 const initialize = () => {
 	

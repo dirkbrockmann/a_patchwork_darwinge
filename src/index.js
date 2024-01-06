@@ -6,8 +6,6 @@ import setup_controls from "./controls.js"
 import {initialize as setup_simulation} from "./simulation.js"
 import {go} from "./controls.js"
 import meta from "./meta.js"
-import * as d3 from "d3"
-
 
 var display,controls,grid;
 
@@ -31,4 +29,4 @@ const halt  = function(){
 	}
 }
 
-export {load,cfg as config,halt,meta,d3};
+export {load,cfg as config,halt,meta};
