@@ -36,6 +36,6 @@ export default {
 		stack_plot_xlabel:"time"		
 	},
 	simulation: {
-		delay:0
+		delay:10
 	}
 }
