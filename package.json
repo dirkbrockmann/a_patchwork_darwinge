@@ -4,7 +4,7 @@
   "subtitle": "Evolution: Selection and Variation",
   "description": "This explorable illustrates the basic mechanism in evolutionary processes and how a population's fitness increases by random mutation and selection of most fit variants.",
   "author": "Dirk Brockmann (https://synosy.github.io)",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "license": "CC-BY-4.0",
   "repository": {
     "type": "git",
